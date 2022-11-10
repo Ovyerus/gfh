@@ -2,9 +2,13 @@
 name = "gfh"
 version = "0.1.0"
 edition = "2021"
+description = "Git FIDO helper - use multiple FIDO keys to sign Git commits"
+authors = ["Michael Mitchell <ovy@ovyerus.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = { version = "4.0.19", features = ["derive"] }
+ctap-hid-fido2 = "3.4.2"
 expanduser = "1.2.2"
+yubikey_api = { package = "yubikey", version = "0.6.0" }
