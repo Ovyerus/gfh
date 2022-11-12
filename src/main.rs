@@ -3,7 +3,9 @@ use clap::Parser;
 use expanduser::expanduser;
 use std::{error::Error, fs};
 
+mod add_key;
 mod config;
+mod util;
 mod yubikey;
 
 #[derive(Parser, Debug)]
@@ -11,37 +13,20 @@ mod yubikey;
 struct Args {
     #[arg(short, long, default_value = "~/.config/gfh/keys")]
     file: String,
+
+    #[arg(short, long)]
+    add: bool,
 }
-
-// fn get_serial(device: &HidInfo) -> String {
-//     let found = device
-//         .info
-//         .split(' ')
-//         .find(|x| x.starts_with("serial_number="));
-
-//     match found {
-//         Some(part) => part.split_once('=').unwrap().1.to_owned(),
-//         None => {
-//             let product = device.product_string.clone();
-
-//             if product.contains("YubiKey") {
-//                 // TODO: convert HidInfo -> Yubikey
-//                 return String::from("meow");
-//             }
-
-//             panic!(
-//                 "failed to find serial ID for {product}. Please open an issue with the device name"
-//             )
-//         }
-//     }
-// }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
     let path = expanduser(args.file)?;
-    let content = fs::read_to_string(path).expect("could not read config file");
-    let mapping = config::parse_config(&content);
 
+    if args.add {
+        return add_key::run(path);
+    }
+
+    let cfg = config::read_config(path).expect("could not read config path");
     // Idea: ignore yubikeys from fido listing
 
     // let devs = ctap_hid_fido2::get_fidokey_devices();
@@ -58,8 +43,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let yubikeys = yubikey::get_yubikeys()?;
     let selected = yubikeys
         .iter()
-        .find_map(|y| mapping.get(&y.serial().0.to_string()))
+        .find_map(|y| cfg.get(&y.serial()))
         .expect("no matching FIDO key found in configuration file.");
+
+    // TODO: resolve file paths in config relative to the config file?
 
     // We need to prefix it with `key::` so that Git doesn't reject it. It then
     // gets picked up by `bin/gfh-keygen` which does some magic stuff to feed

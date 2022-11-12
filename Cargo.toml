@@ -11,4 +11,7 @@ authors = ["Michael Mitchell <ovy@ovyerus.com>"]
 clap = { version = "4.0.19", features = ["derive"] }
 ctap-hid-fido2 = "3.4.2"
 expanduser = "1.2.2"
+inquire = "0.5.2"
+osshkeys = "0.6.2"
+sha2 = "0.10.6"
 yubikey_api = { package = "yubikey", version = "0.6.0" }
