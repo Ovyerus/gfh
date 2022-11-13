@@ -1,7 +1,7 @@
 use ctap_hid_fido2::{util::to_hex_str, Cfg, FidoKeyHidFactory};
 use expanduser::expanduser;
 use inquire::{Select, Text};
-use osshkeys::PublicKey;
+// use osshkeys::PublicKey;
 use std::{collections::HashMap, error::Error, fmt::Display, fs, path::Path};
 
 use crate::{

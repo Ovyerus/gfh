@@ -6,11 +6,11 @@ gfh is a tool for helping you sign your commits in Git with resident SSH keys
 stored on multiple FIDO devices.
 
 <p align="center">
-  [Getting Started](#getting-started)
+  <a href="#getting-started">Getting Started</a>
   -
-  [Usage](#usage)
+  <a href="#usage">Usage</a>
   -
-  [Installation](#installation)
+  <a href="#installation">Installation</a>
 </p>
 
 **NB:** Currently this project has only been tested with the YubiKey 5C NFC. Any

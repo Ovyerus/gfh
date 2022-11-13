@@ -12,6 +12,8 @@ clap = { version = "4.0.19", features = ["derive"] }
 ctap-hid-fido2 = "3.4.2"
 expanduser = "1.2.2"
 inquire = "0.5.2"
-osshkeys = "0.6.2"
+# Uncomment once we actually need osshkeys. Or port over the key conversion stuff manually.
+# openssl = { version = "0.10.42", features = ["vendored"] }
+# osshkeys = "0.6.2"
 sha2 = "0.10.6"
 yubikey_api = { package = "yubikey", version = "0.6.0" }
