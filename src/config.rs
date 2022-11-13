@@ -50,7 +50,7 @@ fn serialise_config(cfg: Config) -> String {
     let mut output = String::new();
 
     for (serial, path) in cfg {
-        output.push_str(&format!("{}::{}\n", serial, path));
+        output.push_str(&format!("{}::{}\n", serial, path.replace("\\", "\\\\")));
     }
 
     output

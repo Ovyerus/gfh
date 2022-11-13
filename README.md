@@ -14,7 +14,7 @@ stored on multiple FIDO devices.
 </p>
 
 **NB:** Currently this project has only been tested with the YubiKey 5C NFC. Any
-FIDO2 certified device _should_ be compatible, but please let me if you
+FIDO2 certified device _should_ be compatible, but please let me know if you
 encountered any issues with particular devices, or also if it works fine so that
 I can have a running list of all keys that are verified working.
 
