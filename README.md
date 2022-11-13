@@ -54,6 +54,9 @@ git config --global gpg.ssh.program "gfh-keygen"
 git config --global gpg.ssh.defaultKeyCommand "gfh"
 ```
 
+If you're on Windows, change the last two commands to set `gfh-keygen.exe` and
+`gfh.exe` respectively.
+
 (You shouldn't set `user.signingkey` because gfh will handle that for you
 automatically.)
 
@@ -85,7 +88,7 @@ scoop install bandsnatch
 ### From source
 
 Pull this repository and run `cargo build --release`, and look for the `gfh` and
-`gfh-agent` binaries in `./target/release/`.
+`gfh-keygen` binaries in `./target/release/`.
 
 ## License
 
