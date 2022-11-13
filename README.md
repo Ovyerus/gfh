@@ -83,12 +83,12 @@ Static binary builds of gfh are available on our
 
 ```
 scoop bucket add ovyerus https://github.com/Ovyerus/bucket
-scoop install bandsnatch
+scoop install gfh
 ```
 
 ### Crate
 
-`cargo install bandsnatch`
+`cargo install gfh`
 
 ### From source
 
