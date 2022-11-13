@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     error::Error,
-    fs::{read_to_string, write},
+    fs::{create_dir_all, read_to_string, write},
     path::Path,
 };
 
@@ -15,6 +15,8 @@ pub fn read_config<P: AsRef<Path>>(path: P) -> std::io::Result<Config> {
 
 pub fn write_config<P: AsRef<Path>>(path: P, cfg: Config) -> Result<(), Box<dyn Error>> {
     let serialised = serialise_config(cfg);
+    let basepath = path.as_ref().parent().unwrap();
+    create_dir_all(basepath)?;
     write(path, serialised)?;
     Ok(())
 }
