@@ -25,6 +25,11 @@ a resident SSH key on your FIDO key(s). The simplest way to do this is via
 `ssh-keygen -t ed25519-sk -O resident`, but there are better guides online if
 you need some different stuff.
 
+If you don't own multiple FIDO keys/only use one resident SSH key, then you more
+than likely do not need to use gfh. This tool has a very niche use case due to
+Git not supporting multiple `signingkey`s. If you only use one resident SSH key
+for signing your commits, you can just use that config option without gfh.
+
 ## Usage
 
 The simplest way to add your keys to gfh is via `gfh -a`. This will prompt you
