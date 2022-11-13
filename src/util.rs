@@ -1,9 +1,11 @@
 use core::fmt;
 use sha2::{Digest, Sha256};
-use std::error::Error;
+use std::{error::Error, hint::unreachable_unchecked};
 
 use ctap_hid_fido2::HidInfo;
 use yubikey_api::YubiKey;
+
+use crate::yubikey;
 
 pub enum FidoDevice {
     YubiKey(YubiKey),
@@ -42,13 +44,30 @@ impl fmt::Display for FidoDevice {
     }
 }
 
-pub fn get_fidos() -> Result<Vec<FidoDevice>, Box<dyn Error>> {
+pub fn get_generics() -> Result<Vec<FidoDevice>, Box<dyn Error>> {
     let devices = ctap_hid_fido2::get_fidokey_devices();
     let devices = devices
         .iter()
         .map(|x| FidoDevice::Generic(x.to_owned()))
         .collect::<Vec<FidoDevice>>();
     Ok(devices)
+}
+
+pub fn get_all_devices() -> Result<Vec<FidoDevice>, Box<dyn Error>> {
+    let fidos = get_generics()?;
+    let mut yubikeys = yubikey::get_yubikeys()?;
+    let mut fidos = fidos
+        .into_iter()
+        .filter(|v| matches!(v, FidoDevice::Generic(_)))
+        .filter(|x| match x {
+            FidoDevice::Generic(h) => !h.product_string.to_lowercase().contains("yubikey"),
+            // Literally only FidoDevice::Generic can be in this vec.
+            _ => unsafe { unreachable_unchecked() },
+        })
+        .collect::<Vec<FidoDevice>>();
+
+    fidos.append(&mut yubikeys);
+    Ok(fidos)
 }
 
 pub fn sha256(input: &str) -> Vec<u8> {

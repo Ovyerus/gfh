@@ -27,21 +27,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let cfg = config::read_config(path).expect("could not read config path");
-    // Idea: ignore yubikeys from fido listing
+    let devices = util::get_all_devices()?;
 
-    // let devs = ctap_hid_fido2::get_fidokey_devices();
-    // if devs.is_empty() {
-    //     // TODO: instead of panicing, await a device to be plugged in
-    //     panic!("no FIDO devices detected")
-    // }
-
-    // for d in devs {
-    //     // let serial = get_serial(&d);
-    //     println!("{},  {}", d.product_string, d.info);
-    // }
-
-    let yubikeys = yubikey::get_yubikeys()?;
-    let selected = yubikeys
+    let selected = devices
         .iter()
         .find_map(|y| cfg.get(&y.serial()))
         .expect("no matching FIDO key found in configuration file.");

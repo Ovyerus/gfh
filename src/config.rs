@@ -7,7 +7,7 @@ use std::{
 
 type Config = HashMap<String, String>;
 
-pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config, Box<dyn Error>> {
+pub fn read_config<P: AsRef<Path>>(path: P) -> std::io::Result<Config> {
     let content = read_to_string(path)?;
     let cfg = parse_config(&content);
     Ok(cfg)

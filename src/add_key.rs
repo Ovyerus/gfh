@@ -2,7 +2,7 @@ use ctap_hid_fido2::{util::to_hex_str, Cfg, FidoKeyHidFactory};
 use expanduser::expanduser;
 use inquire::{Select, Text};
 use osshkeys::PublicKey;
-use std::{error::Error, fmt::Display, fs, path::Path};
+use std::{collections::HashMap, error::Error, fmt::Display, fs, path::Path};
 
 use crate::{
     config,
@@ -29,8 +29,7 @@ impl Display for FidoDescriptorAndEntity {
 }
 
 pub fn run<P: AsRef<Path>>(path: P) -> Result<(), Box<dyn Error>> {
-    let keys = yubikey::get_yubikeys()?;
-    // let keys = util::get_fidos()?;
+    let keys = util::get_all_devices()?;
 
     if keys.is_empty() {
         panic!("no keys detected");
@@ -52,7 +51,11 @@ pub fn run<P: AsRef<Path>>(path: P) -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let mut cfg = config::read_config(&path).unwrap();
+    let mut cfg = config::read_config(&path).or_else(|e| match e.kind() {
+        std::io::ErrorKind::NotFound => Ok(HashMap::new()),
+        _ => Err(e),
+    })?;
+
     cfg.insert(key.serial(), ssh_key);
     config::write_config(path, cfg).unwrap();
     println!("Success!");
@@ -61,6 +64,7 @@ pub fn run<P: AsRef<Path>>(path: P) -> Result<(), Box<dyn Error>> {
 
     // ** Until ED25519 keys get fixed in ctap-hid-fido2/I find a good way to
     //    pull it from a Yubikey, this auto import feature will need to be on hold.
+
     // let ssh_key: String = match answer {
     //     FidoDevice::YubiKey(yubi) => String::from("yubi yubi"),
     //     FidoDevice::Generic(device) => {
