@@ -1,9 +1,15 @@
 [package]
 name = "gfh"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 description = "Git FIDO helper - use multiple FIDO keys to sign Git commits"
 authors = ["Michael Mitchell <ovy@ovyerus.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/Ovyerus/gfh"
+repository = "https://github.com/Ovyerus/gfh"
+keywords = ["cli", "fido", "git", "ssh", "signing"]
+categories = ["command-line-utilities", "development-tools"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,4 +22,5 @@ inquire = "0.5.2"
 # osshkeys = "0.6.2"
 sha2 = "0.10.6"
 shellexpand = "2.1.2"
+# thiserror = "1.0.37"
 yubikey_api = { package = "yubikey", version = "0.6.0" }
