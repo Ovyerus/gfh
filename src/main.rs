@@ -1,6 +1,6 @@
 use clap::Parser;
 // use ctap_hid_fido2::HidInfo;
-use expanduser::expanduser;
+use shellexpand::tilde;
 use std::{error::Error, fs};
 
 mod add_key;
@@ -20,7 +20,7 @@ struct Args {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
-    let path = expanduser(args.file)?;
+    let path = tilde(&args.file).into_owned();
 
     if args.add {
         return add_key::run(path);

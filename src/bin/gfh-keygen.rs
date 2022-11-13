@@ -1,4 +1,4 @@
-use expanduser::expanduser;
+use shellexpand::tilde;
 use std::{
     env, fs,
     process::{self, exit},
@@ -21,8 +21,8 @@ fn main() {
         .expect("file should exist")
         .trim()
         .to_owned();
-    let new_file = expanduser(new_file).expect("failed to expand tilde");
-    args[index] = new_file.to_str().unwrap().to_owned();
+    let new_file = tilde(&new_file);
+    args[index] = new_file.into_owned();
 
     let status = process::Command::new("ssh-keygen")
         .arg("-v")

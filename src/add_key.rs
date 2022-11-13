@@ -1,6 +1,6 @@
 use ctap_hid_fido2::{util::to_hex_str, Cfg, FidoKeyHidFactory};
-use expanduser::expanduser;
 use inquire::{Select, Text};
+use shellexpand::tilde;
 // use osshkeys::PublicKey;
 use std::{collections::HashMap, error::Error, fmt::Display, fs, path::Path};
 
@@ -39,7 +39,7 @@ pub fn run<P: AsRef<Path>>(path: P) -> Result<(), Box<dyn Error>> {
     let key = Select::new("Select which key to import:", keys).prompt()?;
     let ssh_key = loop {
         let answer = Text::new("Path to the associated SSH key:").prompt()?;
-        let expanded = expanduser(answer)?;
+        let expanded = tilde(&answer).into_owned();
 
         match fs::File::open(&expanded) {
             Ok(_) => {
