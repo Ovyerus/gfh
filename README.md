@@ -71,6 +71,8 @@ it.
 
 ## Installation
 
+### Releases are currently pending fixed CI builds, in the meantime you can install via Cargo just fine.
+
 Static binary builds of gfh are available on our
 [releases page](https://github.com/Ovyerus/gfh/releases) for Windows (x86), Mac
 (ARM & x86), and Linux (various architectures).
@@ -94,6 +96,9 @@ scoop install gfh
 
 Pull this repository and run `cargo build --release`, and look for the `gfh` and
 `gfh-keygen` binaries in `./target/release/`.
+
+When building from source or from Cargo, on Linux you will need the following
+packages: `pkg-config libpcsclite-dev libudev-dev`
 
 ## License
 
