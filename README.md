@@ -30,6 +30,27 @@ than likely do not need to use gfh. This tool has a very niche use case due to
 Git not supporting multiple `signingkey`s. If you only use one resident SSH key
 for signing your commits, you can just use that config option without gfh.
 
+### Caveats
+
+I've only personally validated gfh as working on macOS
+
+On Windows, it appears that signing commits with a resident SSH key is
+fundamentally broken in some weird way, requiring an Administrator prompt in
+order to properly work - even though if you run the `ssh-keygen` command Git
+runs and run it by itself, it runs perfectly fine. I suspect this might be
+related to that section of Windows OpenSSH not being integrated with Windows
+Hello like using it for SSH connections is, but I'm unsure.
+
+On Linux, gfh seems to fail with
+`warning: gpg.ssh.defaultKeyCommand succeeded but returned no keys: key::...`,
+which makes no sense, because the format it expects is evidently there. A friend
+of mine has said that running `` eval `ssh-agent` `` (or `eval (ssh-agent -c)`
+as the Fish equivalent) solved the issue for them, however I haven't had any
+luck with this personally so YMMV.
+
+If you ever find out a consistent workaround for these problems, please let me
+know and I'll try and see if I can reproduce them.
+
 ## Usage
 
 The simplest way to add your keys to gfh is via `gfh -a`. This will prompt you
