@@ -37,7 +37,7 @@ jobs:
       - name: Install target
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable-${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}
+          toolchain: stable-unknown-linux-musl
           target: ${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}
           override: true
           profile: minimal
