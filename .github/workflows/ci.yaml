@@ -37,7 +37,7 @@ jobs:
       - name: Install target
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable-${{ matrix.arch }}-unknown-linux-${{ matirix.libc }}
+          toolchain: stable-${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}
           target: ${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}
           override: true
           profile: minimal
@@ -53,7 +53,7 @@ jobs:
           command: build
           args:
             --release --target ${{ matrix.target }}-unknown-linux-${{
-            matrix-libc }}
+            matrix.libc }}
 
       # TODO: stripping binaries?
 
