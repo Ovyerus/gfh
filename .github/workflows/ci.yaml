@@ -29,33 +29,17 @@ jobs:
             libc: "musleabihf"
     steps:
       - uses: actions/checkout@v2
-      - name: Install apt dependencies
-        run:
-          sudo apt install -y musl-dev musl-tools pkg-config libpcsclite-dev
-          libudev-dev
+      - name: Pull Docker image
+        run: |
+          docker pull messense/rust-musl-cross:${{ matrix.arch }}-${{ matrix.libc }}
 
-      - name: Install target
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable-unknown-linux-musl
-          target: ${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}
-          override: true
-          profile: minimal
-
-      - uses: Swatinem/rust-cache@v2
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        with:
-          key: ${{ matrix.target }}-${{ matrix.libc }}
-
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args:
-            --release --target ${{ matrix.target }}-unknown-linux-${{
-            matrix.libc }}
-
-      # TODO: stripping binaries?
+      - name: Add packages, build & strip binaries
+        run: |
+          alias rust-musl-builder='docker run -i -v "$(pwd)":/home/rust/src messense/rust-musl-cross:${{ matrix.arch }}-${{ matrix.libc }}'
+          rust-musl-builder "sudo apt-get update && sudo apt-get install pkg-config libpcsclite-dev libudev-dev"
+          rust-musl-builder "cargo build --release"
+          rust-musl-builder "musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh"
+          rust-musl-builder "musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh-keygen"
 
       - uses: actions/upload-artifact@v2
         with:
