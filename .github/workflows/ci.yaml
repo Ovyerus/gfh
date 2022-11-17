@@ -38,7 +38,7 @@ jobs:
         run: |
           shopt -s expand_aliases
           alias rust-musl-builder='docker run -i -v "$(pwd)":/home/rust/src messense/rust-musl-cross:${{ matrix.arch }}-${{ matrix.libc }}'
-          rust-musl-builder sudo apt-get update && sudo apt-get install pkg-config libpcsclite-dev libudev-dev
+          rust-musl-builder sudo apt-get update && sudo apt-get install pkg-config libpcsclite-dev libudev-dev libpcsclite1 libudev1
           rust-musl-builder cargo build --release
           rust-musl-builder musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh
           rust-musl-builder musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh-keygen
