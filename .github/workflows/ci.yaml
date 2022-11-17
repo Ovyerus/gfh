@@ -19,14 +19,14 @@ jobs:
         include:
           - arch: "x86_64"
             libc: "musl"
-          - arch: "i686"
-            libc: "musl"
-          - arch: "armv7"
-            libc: "musleabihf"
-          - arch: "arm"
-            libc: "musleabi"
-          - arch: "arm"
-            libc: "musleabihf"
+          # - arch: "i686"
+          #   libc: "musl"
+          # - arch: "armv7"
+          #   libc: "musleabihf"
+          # - arch: "arm"
+          #   libc: "musleabi"
+          # - arch: "arm"
+          #   libc: "musleabihf"
     steps:
       - uses: actions/checkout@v2
       - name: Pull Docker image
@@ -37,18 +37,25 @@ jobs:
         shell: bash
         run: |
           shopt -s expand_aliases
-          alias rust-musl-builder='docker run --rm -i -v "$(pwd):/home/rust/src" messense/rust-musl-cross:${{ matrix.arch }}-${{ matrix.libc }} --entrypoint "bash -c"'
+          # alias rust-musl-builder='docker run -i -v "$(pwd):/home/rust/src" messense/rust-musl-cross:${{ matrix.arch }}-${{ matrix.libc }}'
 
-          rust-musl-builder "sudo apt-get update && \
-            sudo apt-get install pkg-config libpcsclite-dev libudev-dev libpcsclite1 libudev1 && \
-            cargo build --release && \
-            musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh && \
-            musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh-keygen"
+          # rust-musl-builder 'bash -c "sudo apt-get update && \
+          #   sudo apt-get install pkg-config libpcsclite-dev libudev-dev libpcsclite1 libudev1 && \
+          #   cargo build --release && \
+          #   musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh && \
+          #   musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh-keygen"'
 
-          # rust-musl-builder sudo apt-get update && sudo apt-get install pkg-config libpcsclite-dev libudev-dev libpcsclite1 libudev1
-          # rust-musl-builder cargo build --release
-          # rust-musl-builder musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh
-          # rust-musl-builder musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh-keygen
+          alias rust-musl-builder="docker exec meow"
+          docker run -d -i -v "$(pwd):/home/rust/src" --name="meow" messense/rust-musl-cross:${{ matrix.arch }}-${{ matrix.libc }}
+
+          rust-musl-builder sh -c "sudo apt-get update && sudo apt-get install -y pkg-config libpcsclite-dev libudev-dev libpcsclite1 libudev1"
+          rust-musl-builder cargo build --release
+          rust-musl-builder musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh
+          rust-musl-builder musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh-keygen
+
+      - name: Cleanup docker
+        if: always()
+        run: docker stop meow && docker rm meow
 
       - uses: actions/upload-artifact@v2
         with:
