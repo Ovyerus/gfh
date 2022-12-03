@@ -32,14 +32,16 @@ for signing your commits, you can just use that config option without gfh.
 
 ### Caveats
 
-I've only personally validated gfh as working on macOS
+I've only personally validated gfh as working on macOS, some friends of mine has
+had it work fine on Windows (10 & 11), but I haven't had any luck with that
+myself.
 
-On Windows, it appears that signing commits with a resident SSH key is
+<!-- On Windows, it appears that signing commits with a resident SSH key is
 fundamentally broken in some weird way, requiring an Administrator prompt in
 order to properly work - even though if you run the `ssh-keygen` command Git
 runs and run it by itself, it runs perfectly fine. I suspect this might be
 related to that section of Windows OpenSSH not being integrated with Windows
-Hello like using it for SSH connections is, but I'm unsure.
+Hello like using it for SSH connections is, but I'm unsure. -->
 
 On Linux, gfh seems to fail with
 `warning: gpg.ssh.defaultKeyCommand succeeded but returned no keys: key::...`,

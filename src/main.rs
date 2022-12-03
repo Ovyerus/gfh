@@ -1,3 +1,4 @@
+use anyhow::{Context, Result};
 use clap::Parser;
 // use ctap_hid_fido2::HidInfo;
 use shellexpand::tilde;
@@ -18,7 +19,7 @@ struct Args {
     add: bool,
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
     let args = Args::parse();
     let path = tilde(&args.file).into_owned();
 
@@ -26,13 +27,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         return add_key::run(path);
     }
 
-    let cfg = config::read_config(path).expect("could not read config path");
+    let cfg = config::read_config(&path).expect("could not read config path");
     let devices = util::get_all_devices()?;
 
     let selected = devices
         .iter()
         .find_map(|y| cfg.get(&y.serial()))
-        .expect("no matching FIDO key found in configuration file.");
+        .with_context(|| format!("no matching FIDO key found in the config at {path}"))?;
 
     // TODO: resolve file paths in config relative to the config file?
 

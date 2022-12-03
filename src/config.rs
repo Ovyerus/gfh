@@ -1,27 +1,45 @@
+use anyhow::{Context, Result};
 use std::{
     collections::HashMap,
-    error::Error,
     fs::{create_dir_all, read_to_string, write},
     path::Path,
 };
 
+// use crate::error::{Error, Result};
+
 type Config = HashMap<String, String>;
 
-pub fn read_config<P: AsRef<Path>>(path: P) -> std::io::Result<Config> {
-    let content = read_to_string(path)?;
-    let cfg = parse_config(&content);
+pub fn read_config<P: AsRef<Path>>(path: P) -> Result<Config> {
+    let content = read_to_string(&path).with_context(|| {
+        format!(
+            "failed to read config at {}",
+            path.as_ref().to_string_lossy()
+        )
+    })?;
+    let cfg = parse_config(&content)?;
     Ok(cfg)
 }
 
-pub fn write_config<P: AsRef<Path>>(path: P, cfg: Config) -> Result<(), Box<dyn Error>> {
+pub fn write_config<P: AsRef<Path>>(path: P, cfg: Config) -> Result<()> {
     let serialised = serialise_config(cfg);
     let basepath = path.as_ref().parent().unwrap();
-    create_dir_all(basepath)?;
-    write(path, serialised)?;
+    create_dir_all(basepath).with_context(|| {
+        format!(
+            "failed to create directory tree `{}` for config",
+            basepath.to_string_lossy()
+        )
+    })?;
+    write(&path, serialised).with_context(|| {
+        format!(
+            "failed to write config at {}",
+            path.as_ref().to_string_lossy()
+        )
+    })?;
+
     Ok(())
 }
 
-fn parse_config(content: &str) -> Config {
+fn parse_config(content: &str) -> Result<Config> {
     let lines = content.lines().enumerate();
     let mut output = Config::new();
 
@@ -43,7 +61,7 @@ fn parse_config(content: &str) -> Config {
         panic!("cannot do anything with an empty config! try using `gfh -a` to import a ssh key");
     }
 
-    output
+    Ok(output)
 }
 
 fn serialise_config(cfg: Config) -> String {

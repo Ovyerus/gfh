@@ -1,8 +1,8 @@
+use anyhow::Result;
 use core::fmt;
-use sha2::{Digest, Sha256};
-use std::{error::Error, hint::unreachable_unchecked};
-
 use ctap_hid_fido2::HidInfo;
+use sha2::{Digest, Sha256};
+use std::hint::unreachable_unchecked;
 use yubikey_api::YubiKey;
 
 use crate::yubikey;
@@ -44,17 +44,17 @@ impl fmt::Display for FidoDevice {
     }
 }
 
-pub fn get_generics() -> Result<Vec<FidoDevice>, Box<dyn Error>> {
+pub fn get_generics() -> Vec<FidoDevice> {
     let devices = ctap_hid_fido2::get_fidokey_devices();
     let devices = devices
         .iter()
         .map(|x| FidoDevice::Generic(x.to_owned()))
         .collect::<Vec<FidoDevice>>();
-    Ok(devices)
+    devices
 }
 
-pub fn get_all_devices() -> Result<Vec<FidoDevice>, Box<dyn Error>> {
-    let fidos = get_generics()?;
+pub fn get_all_devices() -> Result<Vec<FidoDevice>> {
+    let fidos = get_generics();
     let mut yubikeys = yubikey::get_yubikeys()?;
     let mut fidos = fidos
         .into_iter()

@@ -554,8 +554,9 @@ dependencies = [
 
 [[package]]
 name = "gfh"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
+ "anyhow",
  "clap",
  "ctap-hid-fido2",
  "inquire",

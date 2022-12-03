@@ -1,8 +1,9 @@
+use anyhow::{anyhow, Context, Result};
 use ctap_hid_fido2::{util::to_hex_str, Cfg, FidoKeyHidFactory};
 use inquire::{Select, Text};
 use shellexpand::tilde;
 // use osshkeys::PublicKey;
-use std::{collections::HashMap, error::Error, fmt::Display, fs, path::Path};
+use std::{collections::HashMap, fmt::Display, fs, path::Path};
 
 use crate::{
     config,
@@ -28,17 +29,21 @@ impl Display for FidoDescriptorAndEntity {
     }
 }
 
-pub fn run<P: AsRef<Path>>(path: P) -> Result<(), Box<dyn Error>> {
+pub fn run<P: AsRef<Path>>(path: P) -> Result<()> {
     let keys = util::get_all_devices()?;
 
     if keys.is_empty() {
-        panic!("no keys detected");
+        return Err(anyhow!("was not able to find any connected FIDO keys"));
     }
 
     // TODO: wrapper fn that returns the sole result if len == 1?
-    let key = Select::new("Select which key to import:", keys).prompt()?;
+    let key = Select::new("Select which key to import:", keys)
+        .prompt()
+        .with_context(|| "failed to create key selection input")?;
     let ssh_key = loop {
-        let answer = Text::new("Path to the associated SSH key:").prompt()?;
+        let answer = Text::new("Path to the associated SSH key:")
+            .prompt()
+            .with_context(|| "failed to create key path text input")?;
         let expanded = tilde(&answer).into_owned();
 
         match fs::File::open(&expanded) {
@@ -51,10 +56,18 @@ pub fn run<P: AsRef<Path>>(path: P) -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let mut cfg = config::read_config(&path).or_else(|e| match e.kind() {
-        std::io::ErrorKind::NotFound => Ok(HashMap::new()),
-        _ => Err(e),
-    })?;
+    // let mut cfg = config::read_config(&path).or_else(|e| match e.kind() {
+    //     std::io::ErrorKind::NotFound => Ok(HashMap::new()),
+    //     _ => Err(Error::ConfigRead),
+    // })?;
+    let mut cfg =
+        config::read_config(&path).or_else(|e| match e.downcast_ref::<std::io::Error>() {
+            None => Err(e),
+            Some(inner) => match inner.kind() {
+                std::io::ErrorKind::NotFound => Ok(HashMap::new()),
+                _ => Err(e),
+            },
+        })?;
 
     cfg.insert(key.serial(), ssh_key);
     config::write_config(path, cfg).unwrap();
