@@ -111,6 +111,18 @@ scoop bucket add ovyerus https://github.com/Ovyerus/bucket
 scoop install gfh
 ```
 
+### AUR (unofficial)
+
+An unofficial AUR package from [wale](https://github.com/wale) is available at
+https://aur.archlinux.org/packages/gfh. You can use your favourite AUR helper,
+or you can install it manually like so:
+
+```
+git clone https://aur.archlinux.org/gfh.git
+cd gfh
+makepkg -fsri
+```
+
 ### Crate
 
 `cargo install gfh`
