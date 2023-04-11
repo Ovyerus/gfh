@@ -9,60 +9,75 @@ on:
     tags:
       - v*
 
-# TODO: figure out OpenSSL issue so linux build can be moved out of the Docker
-# image so that we can use `Swatinem/rust-cache` across all of them.
 jobs:
   build-linux:
-    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        include:
-          - arch: "x86_64"
-            libc: "musl"
-          # - arch: "i686"
-          #   libc: "musl"
-          # - arch: "armv7"
-          #   libc: "musleabihf"
-          # - arch: "arm"
-          #   libc: "musleabi"
-          # - arch: "arm"
-          #   libc: "musleabihf"
+        platform:
+          - name: x86_64
+            target: amd64
+            runs-on: ubuntu-latest
+          - name: aarch64
+            target: arm64
+            runs-on: [self-hosted, linux, ARM64]
+
+    runs-on: ${{ matrix.platform.runs-on }}
+
     steps:
       - uses: actions/checkout@v2
-      - name: Pull Docker image
-        run: |
-          docker pull messense/rust-musl-cross:${{ matrix.arch }}-${{ matrix.libc }}
-
-      - name: Add packages, build & strip binaries
-        shell: bash
-        run: |
-          shopt -s expand_aliases
-          # alias rust-musl-builder='docker run -i -v "$(pwd):/home/rust/src" messense/rust-musl-cross:${{ matrix.arch }}-${{ matrix.libc }}'
-
-          # rust-musl-builder 'bash -c "sudo apt-get update && \
-          #   sudo apt-get install pkg-config libpcsclite-dev libudev-dev libpcsclite1 libudev1 && \
-          #   cargo build --release && \
-          #   musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh && \
-          #   musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh-keygen"'
-
-          alias rust-musl-builder="docker exec meow"
-          docker run -d -i -v "$(pwd):/home/rust/src" --name="meow" messense/rust-musl-cross:${{ matrix.arch }}-${{ matrix.libc }}
-
-          rust-musl-builder bash -c "sudo apt-get update && sudo apt-get install -y pkg-config libpcsclite-dev libudev-dev libpcsclite1 libudev1"
-          rust-musl-builder bash -c "cargo build --release"
-          rust-musl-builder musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh
-          rust-musl-builder musl-strip -s /home/rust/src/target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh-keygen
-
-      - name: Cleanup docker
-        if: always()
-        run: docker stop meow && docker rm meow
-
-      - uses: actions/upload-artifact@v2
         with:
-          name: "gfh-linux-${{ matrix.arch }}-${{ matrix.libc }}"
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # - name: Cache Docker layers
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: /tmp/.buildx-cache
+      #     key:
+      #       "${{ runner.os }}-buildx-${{ matrix.platform.name }}-${{ github.sha
+      #       }}"
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-${{ matrix.platform.name }}
+
+      - name: Login to GitHub Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build in Docker ${{ matrix.platform.name }}
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/${{ matrix.platform.target }}
+          push: false
+          load: true
+          # TODO: set :latest and versioned tag, on new version
+          # should I even bother pushing?
+          # ovyerus/gfh:nightly
+          tags: |
+            ghcr.io/ovyerus/gfh:nightly
+          # cache-from: type=local,src=/tmp/.buildx-cache
+          # cache-to: type=local,dest=/tmp/.buildx-cache
+
+      - name: Extract binaries
+        run: |
+          id=$(docker create --platform=linux/${{ matrix.platform.target }} ghcr.io/ovyerus/gfh:nightly)
+          docker cp $id:/bs/gfh - > ./gfh-${{ matrix.platform.name }}
+          docker cp $id:/bs/gfh-keygen - > ./gfh-keygen-${{ matrix.platform.name }}
+          docker rm -v $id
+
+      - name: Upload ${{ matrix.platform.name }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: gfh-linux-${{ matrix.platform.name }}-musl
           path: |
-            target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh
-            target/${{ matrix.arch }}-unknown-linux-${{ matrix.libc }}/release/gfh-keygen
+            ./gfh-${{ matrix.platform.name }}
+            ./gfh-keygen-${{ matrix.platform.name }}
 
   build-macos:
     runs-on: macos-11
