@@ -15,7 +15,7 @@ RUN rustup target add "$(sh ./docker-target.sh)-unknown-linux-musl"
 
 COPY . .
 
-ENV RUSTFLAGS=-Clinker=rust-lld
+# ENV RUSTFLAGS=-Clinker=rust-lld
 RUN cargo build --release --target "$(sh ./docker-target.sh)-unknown-linux-musl"
 
 FROM alpine:3.17
