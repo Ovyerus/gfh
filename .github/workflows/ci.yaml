@@ -67,8 +67,8 @@ jobs:
       - name: Extract binaries
         run: |
           id=$(docker create --platform=linux/${{ matrix.platform.target }} ghcr.io/ovyerus/gfh:nightly)
-          docker cp $id:/bs/gfh - > ./gfh-${{ matrix.platform.name }}
-          docker cp $id:/bs/gfh-keygen - > ./gfh-keygen-${{ matrix.platform.name }}
+          docker cp $id:/gfh/gfh - > ./gfh-${{ matrix.platform.name }}
+          docker cp $id:/gfh/gfh-keygen - > ./gfh-keygen-${{ matrix.platform.name }}
           docker rm -v $id
 
       - name: Upload ${{ matrix.platform.name }}
