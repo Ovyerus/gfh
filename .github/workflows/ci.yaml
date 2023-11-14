@@ -67,17 +67,17 @@ jobs:
       - name: Extract binaries
         run: |
           id=$(docker create --platform=linux/${{ matrix.platform.target }} ghcr.io/ovyerus/gfh:nightly)
-          docker cp $id:/gfh/gfh - > ./gfh-${{ matrix.platform.name }}
-          docker cp $id:/gfh/gfh-keygen - > ./gfh-keygen-${{ matrix.platform.name }}
+          docker cp $id:/gfh/gfh ./gfh
+          docker cp $id:/gfh/gfh-keygen ./gfh-keygen
           docker rm -v $id
 
       - name: Upload ${{ matrix.platform.name }}
         uses: actions/upload-artifact@v2
         with:
-          name: gfh-linux-${{ matrix.platform.name }}-musl
+          name: gfh-linux-${{ matrix.platform.name }}
           path: |
-            ./gfh-${{ matrix.platform.name }}
-            ./gfh-keygen-${{ matrix.platform.name }}
+            ./gfh
+            ./gfh-keygen
 
   build-macos:
     runs-on: macos-11
@@ -98,7 +98,6 @@ jobs:
           profile: minimal
 
       - uses: Swatinem/rust-cache@v2
-        if: "!startsWith(github.ref, 'refs/tags/')"
         with:
           key: ${{ matrix.target }}
 
@@ -129,7 +128,6 @@ jobs:
           profile: minimal
 
       - uses: Swatinem/rust-cache@v2
-        if: "!startsWith(github.ref, 'refs/tags/')"
 
       - name: Build
         uses: actions-rs/cargo@v1
@@ -139,7 +137,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: "gfh-windows-x86_64-msvc"
+          name: "gfh-windows-x86_64"
           path: |
             target/x86_64-pc-windows-msvc/release/gfh.exe
             target/x86_64-pc-windows-msvc/release/gfh-keygen.exe
@@ -162,14 +160,11 @@ jobs:
           mkdir out && cd out
 
           declare -a arr=(
-            "windows-x86_64-msvc"
+            "windows-x86_64"
             "macos-x86_64"
             "macos-aarch64"
-            "linux-x86_64-musl"
-            "linux-i686-musl"
-            "linux-armv7-musleabihf"
-            "linux-arm-musleabi"
-            "linux-arm-musleabihf"
+            "linux-x86_64"
+            "linux-aarch64"
           )
 
           for target in "${arr[@]}"
@@ -181,7 +176,7 @@ jobs:
               7z -y a $filename $inputfiles
             else
               filename="gfh-$target.tar.gz"
-              tar czf $filname $inputfiles
+              tar czf $filename $inputfiles
             fi
 
             sha256sum "$filename" >> "checksums.txt"
