@@ -32,6 +32,7 @@
           overlays = [(import rust-overlay)];
         };
 
+        # TODO: cross compilation
         craneLib = crane.lib.${system};
         rust = pkgs.rust-bin.stable.latest.default; # TODO: lock
 
@@ -42,9 +43,14 @@
 
         commonArgs = {
           src = craneLib.cleanCargoSource (craneLib.path ./.);
-          buildInputs = with pkgs; [openssl pcsclite];
+
+          buildInputs = with pkgs;
+            [pcsclite]
+            ++ (lib.optional stdenv.isLinux [eudev])
+            ++ (lib.optional stdenv.isDarwin [libiconvReal]);
+
           nativeBuildInputs = with pkgs;
-            [pkg-config libiconvReal]
+            [pkg-config]
             ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk; [
               frameworks.AppKit
               frameworks.CoreFoundation
@@ -61,12 +67,7 @@
         devShells.default = with pkgs;
           mkShell {
             nativeBuildInputs = commonArgs.nativeBuildInputs;
-
-            buildInputs = [
-              openssl
-              pcsclite
-              rust
-            ];
+            buildInputs = commonArgs.buildInputs;
           };
       }
     );
