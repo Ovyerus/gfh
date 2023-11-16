@@ -67,7 +67,7 @@
         devShells.default = with pkgs;
           mkShell {
             nativeBuildInputs = commonArgs.nativeBuildInputs;
-            buildInputs = commonArgs.buildInputs;
+            buildInputs = [rust] ++ commonArgs.buildInputs;
           };
       }
     );
