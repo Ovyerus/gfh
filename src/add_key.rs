@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Context, Result};
-use ctap_hid_fido2::{util::to_hex_str, Cfg, FidoKeyHidFactory};
+// use ctap_hid_fido2::{util::to_hex_str, Cfg, FidoKeyHidFactory};
+use ctap_hid_fido2::util::to_hex_str;
 use inquire::{Select, Text};
 use shellexpand::tilde;
 // use osshkeys::PublicKey;
@@ -7,8 +8,9 @@ use std::{collections::HashMap, fmt::Display, fs, path::Path};
 
 use crate::{
     config,
-    util::{self, FidoDevice},
-    yubikey,
+    util,
+    // util::{self, FidoDevice},
+    // yubikey,
 };
 
 struct FidoDescriptorAndEntity {

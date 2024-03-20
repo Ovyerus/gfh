@@ -11,8 +11,7 @@ fn main() {
     let (index, _) = args
         .iter()
         .enumerate()
-        // Why the clone needed?
-        .find(|(_, arg)| arg.clone() == &String::from("-f"))
+        .find(|(_, arg)| **arg == String::from("-f"))
         .expect("git did not provide -f somehow");
     let index = index + 1; // We want the file name, which comes after `-f`
 

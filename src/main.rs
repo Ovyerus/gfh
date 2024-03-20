@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 // use ctap_hid_fido2::HidInfo;
 use shellexpand::tilde;
-use std::{error::Error, fs};
+// use std::{error::Error, fs};
 
 mod add_key;
 mod config;

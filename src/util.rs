@@ -70,6 +70,7 @@ pub fn get_all_devices() -> Result<Vec<FidoDevice>> {
     Ok(fidos)
 }
 
+#[allow(dead_code)]
 pub fn sha256(input: &str) -> Vec<u8> {
     let mut hasher = Sha256::new();
     hasher.update(input);
